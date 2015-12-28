@@ -1,0 +1,10 @@
+<resources>
+
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <color name="color_blue">#a4c2f4</color>
+    <color name="color_textwhite">#ffffff</color>
+    <color name="color_textblack">#000</color>
+
+</resources>

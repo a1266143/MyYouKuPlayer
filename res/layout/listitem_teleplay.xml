@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="#ffffff"
+    android:orientation="vertical" >
+    
+    <!-- 海报 -->
+    <ImageView 
+        android:id="@+id/listitem_teleplay_imageview"
+        android:layout_width="match_parent"
+        android:layout_height="170dp"
+        android:scaleType="fitXY"/>
+    
+    
+    <!-- 集数 -->
+    <TextView 
+        android:id="@+id/listitem_teleplay_set"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/listitem_teleplay_imageview"
+        android:textColor="#ffffff"
+        android:layout_marginLeft="2dp"
+        android:layout_marginBottom="2dp"
+        />
+    
+    <!-- 电视剧名 -->
+    <TextView 
+        android:id="@+id/listitem_teleplay_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/listitem_teleplay_imageview"
+        android:singleLine="true"
+        android:layout_marginTop="2dp"
+        android:layout_marginLeft="2dp"
+        />
+    
+    <!-- 得分 -->
+    <TextView 
+        android:id="@+id/listitem_teleplay_score"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/listitem_teleplay_name"
+        android:layout_marginTop="2dp"
+        android:layout_marginLeft="2dp"
+        android:textColor="#FF0000"
+        android:textStyle="italic"/>
+
+</RelativeLayout>

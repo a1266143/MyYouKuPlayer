@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+     >
+    
+    <LinearLayout 
+        android:layout_width="match_parent"
+        android:layout_height="49dp"
+        android:orientation="horizontal"
+        android:background="#eeeeee">
+        <LinearLayout 
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_weight="5"/>
+        
+        <ImageButton 
+            android:id="@+id/titlebar_search"
+            style="@style/titlebarTheme"
+            android:src="@drawable/search"
+            />
+        
+        <ImageButton
+            android:id="@+id/titlebar_record" 
+            style="@style/titlebarTheme"
+            android:src="@drawable/record"
+            />
+        
+        <ImageButton 
+            android:id="@+id/titlebar_download"
+            style="@style/titlebarTheme"
+            android:src="@drawable/download"
+            />
+        
+        <ImageButton 
+            android:id="@+id/titlebar_menu"
+            style="@style/titlebarTheme"
+            android:src="@drawable/menu"
+            />
+        
+    </LinearLayout>
+    
+    <LinearLayout 
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:background="#ffffff">
+        <Button 
+            android:id="@+id/titlebar_movie"
+            style="@style/titlebarTypeTheme"
+            android:background="@color/color_blue"
+            android:textColor="#ffffff"
+            android:text="电影"/>
+        <Button 
+            android:id="@+id/titlebar_anime"
+            style="@style/titlebarTypeTheme"
+            android:text="动漫"/>
+        <Button 
+            android:id="@+id/titlebar_teleplay"
+            style="@style/titlebarTypeTheme"
+            android:text="电视剧"/>
+        <Button 
+            android:id="@+id/titlebar_variety"
+            style="@style/titlebarTypeTheme"
+            android:text="综艺"/>
+    </LinearLayout>
+
+</LinearLayout>
