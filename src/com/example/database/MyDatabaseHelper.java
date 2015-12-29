@@ -7,12 +7,13 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class MyDatabaseHelper extends SQLiteOpenHelper {
 
-	//创建 “大家都在搜” 的数据表
-	final String CREATE_TABLE_SQL = "create table everyone_search(WORD TEXT NOT NULL)";
+	//创建 “热门关键词” 的数据表
+	final String CREATE_TABLE_SQL = "create table hot_words(WORD TEXT NOT NULL)";
+	//创建搜索历史的表
+	final String CREATE_TABLE_SQL2 = "create table history_search(HISTORY TEXT NOT NULL)";
 	
-	public MyDatabaseHelper(Context context, String name,
-			CursorFactory factory, int version) {
-		super(context, name, factory, version);
+	public MyDatabaseHelper(Context context, String name, int version) {
+		super(context, name,null, version);
 	}
 
 	/**
@@ -22,6 +23,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		//第一次使用数据库时自动建表
 		db.execSQL(CREATE_TABLE_SQL);
+		db.execSQL(CREATE_TABLE_SQL2);
 	}
 
 	@Override

@@ -6,6 +6,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.os.Handler;
+import android.util.Log;
+
 import com.example.bean.TelePlayBean;
 
 /**
@@ -19,6 +22,8 @@ public class AnalysisJson {
 	public static  AnalysisJson getInstance(){
 		return an;
 	}
+	
+	
 	
 	/**
 	 * 解析电视剧的json数据为列表
@@ -69,8 +74,30 @@ public class AnalysisJson {
 			}
 			return arr;
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
+			Log.e("json解析", "json解析错误");
 			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	/**
+	 * 解析热门关键词json
+	 * @param json
+	 * @return
+	 */
+	public ArrayList<String> getHotWordsArr(Handler handler,String json){
+		ArrayList<String> arr = new ArrayList<String>();
+		try {
+			JSONObject jo = new JSONObject(json);
+			JSONArray keywords = jo.getJSONArray("keywords");
+			for(int i=0;i<keywords.length();i++){
+				String keyword = keywords.getJSONObject(i).getString("keyword");
+				arr.add(keyword);
+			}
+			return arr;
+		} catch (JSONException e) {
+			//解析json出错
+			handler.sendEmptyMessage(StaticCode.MISTAKE_JSON);
 			return null;
 		}
 	}

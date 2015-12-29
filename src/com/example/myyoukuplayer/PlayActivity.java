@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.utils.NetForJsonUtils;
+import com.example.utils.StaticCode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
@@ -17,6 +18,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.app.Activity;
 import android.content.res.Configuration;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -33,17 +35,18 @@ public class PlayActivity extends Activity {
 	// youkuplayer,控制视频播放
 	private YoukuPlayer player;
 	private int page = 1;
-	private List<String> idList;
+	private ArrayList<String> idList;
 	private List<String> setsList;
 	private PullToRefreshGridView gridView;
 	ArrayAdapter<String> adapter;
 	String id;
 	Handler handler = new Handler() {
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public void handleMessage(Message msg) {
 			//如果网络错误
-			if(msg.what == NetForJsonUtils.MISTAKE_NET){
+			if(msg.what == StaticCode.MISTAKE_NET){
 				Toast.makeText(PlayActivity.this, "网络错误", Toast.LENGTH_SHORT).show();
 				//将page的值减1
 				page-=1;
@@ -52,7 +55,7 @@ public class PlayActivity extends Activity {
 				return;
 			}
 			//如果json解析错误
-			if(msg.what == NetForJsonUtils.MISTAKE_JSON){
+			if(msg.what == StaticCode.MISTAKE_JSON){
 				Toast.makeText(PlayActivity.this, "json解析错误", Toast.LENGTH_SHORT).show();
 				page-=1;
 				//关闭刷新
@@ -61,18 +64,19 @@ public class PlayActivity extends Activity {
 			}
 			// 获取网络操作后传送过来的arraylist
 			if(page == 1){
-				idList = (List<String>) msg.getData().getSerializable("ArrayList");
-				// 播放
-				player.playVideo(idList.get(0));
-				setsList = new ArrayList<String>();
-				int a = 1;
-				for(int i = 0;i<idList.size();i++){
-					setsList.add(""+a);
-					a++;
+				idList = (ArrayList<String>) msg.getData().getSerializable("ArrayList");
+				if(idList!=null){
+					// 播放
+					player.playVideo(idList.get(0));
+					setsList = new ArrayList<String>();
+					int a = 1;
+					for(int i = 0;i<idList.size();i++){
+						setsList.add(""+a);
+						a++;
+					}
+					adapter = new ArrayAdapter<String>(PlayActivity.this, R.layout.listite_play_gridview, setsList);
+					gridView.setAdapter(adapter);
 				}
-				adapter = new ArrayAdapter<String>(PlayActivity.this, R.layout.listite_play_gridview, setsList);
-				gridView.setAdapter(adapter);
-				
 			}
 			//否则如果是分页加载
 			else{
@@ -118,7 +122,6 @@ public class PlayActivity extends Activity {
 				addPlugins();
 				// 实例化YoukuPlayer实例
 				PlayActivity.this.player = player;
-
 			}
 
 			@Override
@@ -135,11 +138,8 @@ public class PlayActivity extends Activity {
 		playerView.setFullScreenLayoutParams(new RelativeLayout.LayoutParams(
 				RelativeLayout.LayoutParams.MATCH_PARENT,
 				RelativeLayout.LayoutParams.MATCH_PARENT));
+		//初始化播放器相关数据
 		playerView.initialize(manager);
-		// 执行网络操作，获取具体剧集数据
-		NetForJsonUtils.getInstance().getTeleSet(id, handler, page);
-		
-		//设置当最后一个item看得见的时候，直接加载第二页
 		gridView.setMode(Mode.PULL_UP_TO_REFRESH);
 		gridView.setOnRefreshListener(new MyOnRefreshListener());
 		gridView.setOnItemClickListener(new OnItemClickListener() {
@@ -150,6 +150,8 @@ public class PlayActivity extends Activity {
 				player.playVideo(idList.get(arg2));
 			}
 		});
+		// 执行网络操作，获取具体剧集数据
+		NetForJsonUtils.getInstance().getTeleSet(id, handler, page);
 	}
 	
 	class MyOnRefreshListener implements OnRefreshListener2<GridView>{

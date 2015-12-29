@@ -9,9 +9,9 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="49dp"
+        android:background="#eee"
         android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:background="#eee" >
+        android:focusableInTouchMode="true" >
 
         <ImageButton
             android:id="@+id/search_back"
@@ -32,22 +32,91 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" 
-        android:padding="5dp">
+        android:layout_height="wrap_content"
+        android:padding="5dp" >
 
         <EditText
             android:id="@+id/search_edittext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/search_edittext"
-            android:hint="输入搜索关键字"
-            android:textSize="14sp"
-            android:padding="7dp"
             android:drawableLeft="@drawable/search_small"
-            android:drawingCacheQuality="high"
             android:drawablePadding="5dp"
+            android:drawingCacheQuality="high"
+            android:hint="输入搜索关键字"
             android:imeOptions="actionSearch"
-            android:singleLine="true" />
+            android:padding="7dp"
+            android:singleLine="true"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <!-- 历史纪录 -->
+
+    <LinearLayout
+        android:id="@+id/search_history_linear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="5dp"
+        android:visibility="gone"
+        >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/search_edittext" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="45dp"
+                android:gravity="center_vertical"
+                android:paddingLeft="5dp"
+                android:text="搜索历史"
+                android:textSize="22sp" />
+            
+            <Button 
+                android:id="@+id/search_close_history"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/close"/>
+        </RelativeLayout>
+
+        <ListView
+            android:id="@+id/search_history"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/search_edittext"
+            android:dividerHeight="1px" />
+    </LinearLayout>
+
+    <!-- 热门搜索词 -->
+
+    <LinearLayout
+        android:id="@+id/search_hotwords_linear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="5dp"
+        android:visibility="gone" >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:background="@drawable/search_edittext"
+            android:gravity="center_vertical"
+            android:paddingLeft="5dp"
+            android:text="大家都在搜"
+            android:textSize="22sp" />
+
+        <GridView
+            android:id="@+id/search_hotwords"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/search_edittext"
+            android:numColumns="2" />
     </LinearLayout>
 
 </LinearLayout>

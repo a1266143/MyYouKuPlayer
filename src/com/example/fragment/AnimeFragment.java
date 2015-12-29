@@ -9,6 +9,7 @@ import com.example.fragment.TelePlayFragment.MyOnRefreshListener;
 import com.example.myyoukuplayer.PlayActivity;
 import com.example.myyoukuplayer.R;
 import com.example.utils.NetForJsonUtils;
+import com.example.utils.StaticCode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshGridView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
@@ -43,11 +44,11 @@ public class AnimeFragment extends Fragment {
 		@Override
 		public void handleMessage(Message msg) {
 			//如果解析json错误，直接显示错误信息
-			if(msg.what==NetForJsonUtils.MISTAKE_JSON){
+			if(msg.what==StaticCode.MISTAKE_JSON){
 				Toast.makeText(getActivity(), "解析json数据错误", Toast.LENGTH_SHORT).show();
 			}
 			//如果是网络错误
-			else if(msg.what == NetForJsonUtils.MISTAKE_NET){
+			else if(msg.what == StaticCode.MISTAKE_NET){
 				Toast.makeText(getActivity(), "网络错误", Toast.LENGTH_SHORT).show();
 				//如果是第一次显示网络错误，就将页面提示文字显示出来
 				if(adapter==null){
@@ -89,7 +90,7 @@ public class AnimeFragment extends Fragment {
 		gridView.setMode(Mode.BOTH);
 		gridView.setOnRefreshListener(new MyOnRefreshListener());
 		gridView.setOnItemClickListener(new MyOnItemClickListener());
-		NetForJsonUtils.getInstance().getTelePlay(handler, page, NetForJsonUtils.TYPE_ANIME);
+		NetForJsonUtils.getInstance().getTelePlay(handler, page, StaticCode.TYPE_ANIME);
 		return view;
 	}
 	
@@ -106,14 +107,14 @@ public class AnimeFragment extends Fragment {
 		public void onPullDownToRefresh(PullToRefreshBase<GridView> refreshView) {
 			//将page设置为1，重新加载
 			page = 1;
-			NetForJsonUtils.getInstance().getTelePlay(handler, page, NetForJsonUtils.TYPE_ANIME);
+			NetForJsonUtils.getInstance().getTelePlay(handler, page, StaticCode.TYPE_ANIME);
 		}
 
 		//上拉加载更多监听器
 		@Override
 		public void onPullUpToRefresh(PullToRefreshBase<GridView> refreshView) {
 			page+=1;
-			NetForJsonUtils.getInstance().getTelePlay(handler, page, NetForJsonUtils.TYPE_ANIME);
+			NetForJsonUtils.getInstance().getTelePlay(handler, page, StaticCode.TYPE_ANIME);
 		}
 		
 	}
