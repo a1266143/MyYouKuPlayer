@@ -38,4 +38,6 @@ public class StaticCode {
 		public static final String URL_VARIETY = "https://openapi.youku.com/v2/shows/by_category.json?client_id=02b97cb39f025d2c&category=综艺&page=";
 		//热门搜索词url
 		public static final String URL_HOTWORDS = "https://openapi.youku.com/v2/searches/keyword/top.json?client_id=02b97cb39f025d2c";
+		//搜索节目url
+		public static final String URL_SHOWS = "https://openapi.youku.com/v2/searches/show/by_keyword.json?client_id=02b97cb39f025d2c&keyword=";
 }

@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import android.os.Handler;
 import android.util.Log;
 
+import com.example.bean.ShowBean;
 import com.example.bean.TelePlayBean;
 
 /**
@@ -99,6 +100,55 @@ public class AnalysisJson {
 			//解析json出错
 			handler.sendEmptyMessage(StaticCode.MISTAKE_JSON);
 			return null;
+		}
+	}
+	
+	/**
+	 * 解析节目的shows
+	 * @param json json字符串
+	 * @param handler
+	 * @return
+	 */
+	public ArrayList<ShowBean> AnaShows(String json,Handler handler){
+		ArrayList<ShowBean> arr = new ArrayList<ShowBean>();
+		try {
+			JSONObject jo = new JSONObject(json);
+			JSONArray shows = jo.getJSONArray("shows");
+			for(int i=0;i<shows.length();i++){
+				JSONObject show = shows.getJSONObject(i);
+				ShowBean sb = new ShowBean();
+				sb.setId(show.getString("id"));
+				sb.setName(show.getString("name"));
+				sb.setPoster(show.getString("poster"));
+				sb.setShowcategory(show.getString("showcategory"));
+				sb.setDescription(show.getString("description"));
+				//解析score，double类型先转换成Double对象，然后再转化成String对象，然后再截断0，2的位置，比如9.525->9.5
+				Double scor = Double.valueOf(show.getDouble("score"));
+				String score = scor.toString();
+				score.substring(0, 2);
+				sb.setScore(score);
+				String published = (show.getString("published")).substring(0,4);
+				sb.setPublished(published);
+				int completed = show.getInt("completed");
+				int episode_updated = show.getInt("episode_updated");
+				sb.setCompleted(completed);
+				if(completed==1&&episode_updated<10000){
+					sb.setEpisode_updated(episode_updated+"集全");
+				}else if(completed == 1&&episode_updated>10000){
+					sb.setEpisode_updated(episode_updated+"");
+				}
+				else if(completed == 0&&episode_updated>10000){
+					sb.setEpisode_updated("更新至"+episode_updated+"期");
+				}
+				else
+					sb.setEpisode_updated("更新至"+episode_updated+"集");
+				arr.add(sb);
+			}
+			return arr;
+		} catch (JSONException e) {
+			//handler.sendEmptyMessage(StaticCode.MISTAKE_JSON);
+			//返回一个空的列表
+			return new ArrayList<ShowBean>();
 		}
 	}
 }

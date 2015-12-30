@@ -12,6 +12,9 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import com.example.bean.ShowBean;
+import com.example.myyoukuplayer.ResultActivity;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -163,6 +166,28 @@ public class NetForJsonUtils {
 				}
 				// 进行数据库操作
 
+			}
+		}).start();
+	}
+	
+	/**
+	 * 根据关键词搜索节目
+	 */
+	public void searchShows(final String keyword,final Handler handler){
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				String url = keyword.replaceAll(" ", "%20");
+				String json = getConnect(StaticCode.URL_SHOWS+url, handler, -1);
+				if(json!=null){
+					ArrayList<ShowBean> arr = AnalysisJson.getInstance().AnaShows(json, handler);
+						Message m = new Message();
+						Bundle b = new Bundle();
+						b.putSerializable("ArrayList", arr);
+						m.setData(b);
+						handler.sendMessage(m);
+				}
 			}
 		}).start();
 	}
