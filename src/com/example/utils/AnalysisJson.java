@@ -11,6 +11,7 @@ import android.util.Log;
 
 import com.example.bean.ShowBean;
 import com.example.bean.TelePlayBean;
+import com.example.bean.VideoBean;
 
 /**
  * 解析json数据的工具类
@@ -149,6 +150,34 @@ public class AnalysisJson {
 			//handler.sendEmptyMessage(StaticCode.MISTAKE_JSON);
 			//返回一个空的列表
 			return new ArrayList<ShowBean>();
+		}
+	}
+	
+	/**
+	 * 解析视频的json数据
+	 * @param json数据
+	 * @return 返回解析过后的arraylist，如果解析错误，就返回size为空的集合，表示没有数据
+	 */
+	public ArrayList<VideoBean> anaVideos(String json){
+		ArrayList<VideoBean> arr = new ArrayList<VideoBean>();
+		try {
+			JSONObject jo = new JSONObject(json);
+			JSONArray videos = jo.getJSONArray("videos");
+			for(int i=0;i<videos.length();i++){
+				JSONObject video = videos.getJSONObject(i);
+				String id = video.getString("id");
+				String thumbnail = video.getString("thumbnail");
+				String title = video.getString("title");
+				VideoBean vb = new VideoBean();
+				vb.setId(id);
+				vb.setThumbnail(thumbnail);
+				vb.setTitle(title);
+				arr.add(vb);
+			}
+			return arr;
+		} catch (JSONException e) {
+			//返回一个size为0的list
+			return new ArrayList<VideoBean>();
 		}
 	}
 }

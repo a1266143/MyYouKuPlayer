@@ -3,19 +3,33 @@ package com.example.myyoukuplayer;
 import java.util.ArrayList;
 
 import com.example.adapter.ResultShowsAdapter;
+import com.example.adapter.ResultVideosAdapter;
 import com.example.bean.ShowBean;
+import com.example.bean.VideoBean;
 import com.example.utils.NetForJsonUtils;
 import com.example.utils.StaticCode;
 import com.example.view.MyGridView;
 import com.example.view.MyListView;
+import com.example.view.MyScrollView;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnPullEventListener;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.State;
+import com.handmark.pulltorefresh.library.PullToRefreshScrollView;
 
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.app.Activity;
+import android.content.Intent;
+import android.util.Log;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageButton;
@@ -23,66 +37,92 @@ import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.AdapterView.OnItemClickListener;
 
 public class ResultActivity extends Activity {
 
 	private String keyword;
-	private ScrollView scrollView;
+	private PullToRefreshScrollView scrollView;
 	private MyListView listView;
 	private MyGridView gridView;
 	private TextView result_title;
 	private ImageButton result_back;
-	public Handler handler = new Handler(){
+	private ArrayList<ShowBean> showList;
+	private ArrayList<VideoBean> videoAddList;
+	private ArrayList<VideoBean> videoList;
+	private int page = 1;
+	ResultVideosAdapter vadapter;
+	public Handler handler = new Handler() {
 
 		@SuppressWarnings("unchecked")
 		@Override
 		public void handleMessage(Message msg) {
-			if(msg.what==StaticCode.MISTAKE_NET){
-				Toast.makeText(ResultActivity.this, "网络连接错误", Toast.LENGTH_SHORT).show();
+			//如果是网络错误
+			if (msg.what == StaticCode.MISTAKE_NET) {
+				Toast.makeText(ResultActivity.this, "网络连接错误",
+						Toast.LENGTH_SHORT).show();
+				if(page!=1)
+					page--;
 				return;
-			}else{
-				ArrayList<ShowBean> showList = new ArrayList<ShowBean>();
-				Bundle b = msg.getData();
-				showList = (ArrayList<ShowBean>) b.getSerializable("ArrayList");
-				//TODO 
-				//
-				//
-				//
-				if(showList == null){
-					Toast.makeText(ResultActivity.this, "showList为空", Toast.LENGTH_SHORT).show();
-				}
-				if(showList!=null){
-					//如果showList的容量为0，也就说明没搜到数据
-					if(showList.size()==0){
-						//TODO 不将listView显示出来
-						Toast.makeText(ResultActivity.this, "list容量为0", Toast.LENGTH_SHORT).show();
+			}
+			//如果是查找的节目
+			else if(msg.what == StaticCode.TIP_SEARCHSHOWS) {
+				//如果是第一次加载
+					showList = (ArrayList<ShowBean>) msg.getData().getSerializable("ArrayList");
+					// 如果showList的容量为0，也就说明没搜到数据
+					if (showList.size() == 0) {
+						// TODO 不将listView显示出来
 						return;
-					}else{
-						Toast.makeText(ResultActivity.this, "执行了", Toast.LENGTH_SHORT).show();
-						//1.将listview显示出来，2.设置adapter
-						ResultShowsAdapter adapter = new ResultShowsAdapter(ResultActivity.this, showList);
+					} else {
+						// 1.将listview显示出来，2.设置adapter
+						ResultShowsAdapter adapter = new ResultShowsAdapter(
+								ResultActivity.this, showList);
 						listView.setAdapter(adapter);
 						listView.setVisibility(View.VISIBLE);
 					}
-					
-				}
 			}
+			//如果查找的是视频
+			else if(msg.what == StaticCode.TIP_SEARCHVIDEOS){
+				//如果是第一次加载
+				if(msg.arg1 == StaticCode.FIRST_LOAD){
+					videoList = (ArrayList<VideoBean>) msg.getData().getSerializable("ArrayList");
+					if(videoList.size() == 0){
+						return;
+					}else{
+						vadapter= new ResultVideosAdapter(ResultActivity.this, videoList);
+						gridView.setAdapter(vadapter);
+						gridView.setVisibility(View.VISIBLE);
+					}
+				}
+				//否则如果是分页加载
+				else{
+					videoAddList = (ArrayList<VideoBean>) msg.getData().getSerializable("ArrayList");
+					videoList.addAll(videoAddList);
+					vadapter.notifyDataSetChanged();
+				}
+				scrollView.onRefreshComplete();
+			}
+			
 		}
-		
+
 	};
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_result);
-		//获取关键词
+		// 获取关键词
 		keyword = getIntent().getStringExtra("keyword");
-		//初始化
+		// 初始化
 		init();
-		//进行网络操作获取节目
-		NetForJsonUtils.getInstance().searchShows(keyword,handler);
+		// 根据关键词获取节目列表
+		NetForJsonUtils.getInstance().searchShows(keyword, handler);
+		//根据关键词获取视频列表
+		NetForJsonUtils.getInstance().searchVideos(keyword, handler,-1);
 	}
-	public void init(){
-		scrollView = (ScrollView) findViewById(R.id.result_scrollview);
+
+	public void init() {
+		scrollView = (PullToRefreshScrollView) findViewById(R.id.result_scrollview);
 		listView = (MyListView) findViewById(R.id.result_listview);
 		gridView = (MyGridView) findViewById(R.id.result_gridview);
 		result_title = (TextView) findViewById(R.id.result_title);
@@ -90,9 +130,69 @@ public class ResultActivity extends Activity {
 		result_title.setText(keyword);
 		ResultClickListener listener = new ResultClickListener();
 		result_back.setOnClickListener(listener);
+		//scrollView.setOnTouchListener(new TouchListenerImpl());
+		ResultItemClickListener listener1 = new ResultItemClickListener(StaticCode.TYPE_SHOW);
+		listView.setOnItemClickListener(listener1);
+		ResultItemClickListener listener2 = new ResultItemClickListener(StaticCode.TYPE_VIDEO);
+		gridView.setOnItemClickListener(listener2);
+		//设置scrollview为上拉加载
+		scrollView.setMode(Mode.PULL_UP_TO_REFRESH);
+		scrollView.setOnRefreshListener(new ResultPullToRefreshListener());
 	}
 	
-	class ResultClickListener implements OnClickListener{
+	class ResultPullToRefreshListener implements OnRefreshListener2<ScrollView>{
+
+		@Override
+		public void onPullDownToRefresh(
+				PullToRefreshBase<ScrollView> refreshView) {
+			
+		}
+
+		//执行分页加载节目视频
+		@Override
+		public void onPullUpToRefresh(PullToRefreshBase<ScrollView> refreshView) {
+			page++;
+			NetForJsonUtils.getInstance().searchVideos(keyword, handler, page);
+		}
+		
+	}
+
+	/**
+	 * 搜索界面中listview和gridview的事件监听器
+	 * @author 李晓军
+	 *
+	 */
+	class ResultItemClickListener implements OnItemClickListener{
+		
+		private int TYPE;
+		
+
+		public ResultItemClickListener(int tYPE) {
+			super();
+			TYPE = tYPE;
+		}
+
+
+		@Override
+		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+				long arg3) {
+			Intent intent = new Intent(ResultActivity.this,PlayActivity.class);
+			if(TYPE == StaticCode.TYPE_SHOW){
+				intent.putExtra("TYPE", StaticCode.TYPE_SHOW);
+				intent.putExtra("id", showList.get(arg2).getId());
+			}
+			else{
+				intent.putExtra("TYPE", StaticCode.TYPE_VIDEO);
+				intent.putExtra("id", videoList.get(arg2).getId());
+			}
+			startActivity(intent);
+		}
+		
+	}
+	
+	
+	//本activity中的按钮事件监听器
+	class ResultClickListener implements OnClickListener {
 
 		@Override
 		public void onClick(View view) {
@@ -102,7 +202,8 @@ public class ResultActivity extends Activity {
 				break;
 			}
 		}
-		
+
 	}
+	
 
 }

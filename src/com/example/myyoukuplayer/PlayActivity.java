@@ -45,51 +45,54 @@ public class PlayActivity extends Activity {
 		@SuppressWarnings("unchecked")
 		@Override
 		public void handleMessage(Message msg) {
-			//如果网络错误
-			if(msg.what == StaticCode.MISTAKE_NET){
-				Toast.makeText(PlayActivity.this, "网络错误", Toast.LENGTH_SHORT).show();
-				//将page的值减1
-				page-=1;
-				//关闭刷新
+			// 如果网络错误
+			if (msg.what == StaticCode.MISTAKE_NET) {
+				Toast.makeText(PlayActivity.this, "网络错误", Toast.LENGTH_SHORT)
+						.show();
+				// 将page的值减1
+				page -= 1;
+				// 关闭刷新
 				gridView.onRefreshComplete();
 				return;
 			}
-			//如果json解析错误
-			if(msg.what == StaticCode.MISTAKE_JSON){
-				Toast.makeText(PlayActivity.this, "json解析错误", Toast.LENGTH_SHORT).show();
-				page-=1;
-				//关闭刷新
+			// 如果json解析错误
+			if (msg.what == StaticCode.MISTAKE_JSON) {
+				Toast.makeText(PlayActivity.this, "json解析错误",
+						Toast.LENGTH_SHORT).show();
+				page -= 1;
+				// 关闭刷新
 				gridView.onRefreshComplete();
 				return;
 			}
 			// 获取网络操作后传送过来的arraylist
-			if(page == 1){
-				idList = (ArrayList<String>) msg.getData().getSerializable("ArrayList");
-				if(idList!=null){
+			if (page == 1) {
+				idList = (ArrayList<String>) msg.getData().getSerializable(
+						"ArrayList");
 					// 播放
 					player.playVideo(idList.get(0));
 					setsList = new ArrayList<String>();
 					int a = 1;
-					for(int i = 0;i<idList.size();i++){
-						setsList.add(""+a);
+					for (int i = 0; i < idList.size(); i++) {
+						setsList.add("" + a);
 						a++;
 					}
-					adapter = new ArrayAdapter<String>(PlayActivity.this, R.layout.listite_play_gridview, setsList);
+					adapter = new ArrayAdapter<String>(PlayActivity.this,
+							R.layout.listite_play_gridview, setsList);
 					gridView.setAdapter(adapter);
-				}
 			}
-			//否则如果是分页加载
-			else{
-				idList.addAll((List<String>) msg.getData().getSerializable("ArrayList"));
+			// 否则如果是分页加载
+			else {
+				idList.addAll((List<String>) msg.getData().getSerializable(
+						"ArrayList"));
 				setsList.clear();
 				int a = 1;
-				for(int i = 0;i<idList.size();i++){
-					setsList.add(""+a);
+				for (int i = 0; i < idList.size(); i++) {
+					setsList.add("" + a);
 					a++;
 				}
 				adapter.notifyDataSetChanged();
 			}
-			//关闭刷新
+			// 关闭刷新
 			gridView.onRefreshComplete();
 		}
 
@@ -151,22 +154,25 @@ public class PlayActivity extends Activity {
 			}
 		});
 		// 执行网络操作，获取具体剧集数据
-		NetForJsonUtils.getInstance().getTeleSet(id, handler, page);
+		if(getIntent().getIntExtra("TYPE", 0)==StaticCode.TYPE_SHOW)
+			NetForJsonUtils.getInstance().getTeleSet(id, handler, page);
+		else
+			player.playVideo(getIntent().getStringExtra("id"));
 	}
-	
-	class MyOnRefreshListener implements OnRefreshListener2<GridView>{
+
+	class MyOnRefreshListener implements OnRefreshListener2<GridView> {
 
 		@Override
 		public void onPullDownToRefresh(PullToRefreshBase<GridView> refreshView) {
-			
+
 		}
 
 		@Override
 		public void onPullUpToRefresh(PullToRefreshBase<GridView> refreshView) {
-			page+=1;
+			page += 1;
 			NetForJsonUtils.getInstance().getTeleSet(id, handler, page);
 		}
-		
+
 	}
 
 	@Override
@@ -175,54 +181,51 @@ public class PlayActivity extends Activity {
 		manager.onBackPressed();
 		Toast.makeText(this, "backPress调用了", Toast.LENGTH_SHORT).show();
 	}
-	
+
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		manager.onConfigurationChanged(newConfig);
 	}
-	
+
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 		manager.onDestroy();
-		page =1 ;
+		page = 1;
 	}
-	
-	
+
 	@Override
 	protected void onPause() {
 		super.onPause();
 		manager.onPause();
 	}
-	
+
 	@Override
 	protected void onResume() {
 		super.onResume();
 		manager.onResume();
 	}
-	
+
 	@Override
 	protected void onStart() {
 		super.onStart();
 		manager.onStart();
 	}
-	
+
 	@Override
 	protected void onStop() {
 		super.onStop();
 		manager.onStop();
 	}
-	
+
 	@Override
 	public boolean onSearchRequested() { // android系统调用
 		return manager.onSearchRequested();
 	}
-	
-	
+
 	/**
-	 * 重写该方法
-	 * 全屏状态下按返回键不会退出activity
+	 * 重写该方法 全屏状态下按返回键不会退出activity
 	 */
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -234,12 +237,11 @@ public class PlayActivity extends Activity {
 		}
 
 	}
-	
+
 	@Override
 	public void onLowMemory() { // android系统调用
 		super.onLowMemory();
 		manager.onLowMemory();
 	}
-	
 
 }

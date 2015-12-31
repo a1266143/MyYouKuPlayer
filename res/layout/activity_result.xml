@@ -12,7 +12,7 @@
         android:background="#eee"
         android:focusable="true"
         android:focusableInTouchMode="true" >
-
+        
         <ImageButton
             android:id="@+id/result_back"
             android:layout_width="16dp"
@@ -30,11 +30,13 @@
             android:layout_centerInParent="true"
              />
     </RelativeLayout>
+    
 
-    <ScrollView
+    <com.handmark.pulltorefresh.library.PullToRefreshScrollView
         android:id="@+id/result_scrollview" 
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        >
         <LinearLayout 
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -53,9 +55,12 @@
             android:id="@+id/result_gridview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/search_edittext"
+            android:horizontalSpacing="2px"
+            android:padding="5dp"
             android:numColumns="2" />
         
         </LinearLayout>
         
-    </ScrollView>
+    </com.handmark.pulltorefresh.library.PullToRefreshScrollView>
 </LinearLayout>

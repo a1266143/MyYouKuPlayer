@@ -13,6 +13,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import com.example.bean.ShowBean;
+import com.example.bean.VideoBean;
 import com.example.myyoukuplayer.ResultActivity;
 
 import android.content.Context;
@@ -110,7 +111,7 @@ public class NetForJsonUtils {
 	// 根据id获得具体电视剧的信息
 	public void getTeleSet(final String id, final Handler handler,
 			final int page) {
-		
+
 		// 获取json字符串
 		new Thread(new Runnable() {
 
@@ -118,7 +119,6 @@ public class NetForJsonUtils {
 			public void run() {
 				String json = getConnect(StaticCode.URL_TELESET + id, handler,
 						page);
-				Log.e("json", json);
 				// 如果所有都正常，解析json字符串并将arraylist传回给handler
 				if (json != null) {
 					Message m = new Message();
@@ -126,15 +126,14 @@ public class NetForJsonUtils {
 					ArrayList<String> arr = new ArrayList<String>();
 					// 如果解析json错误，函数会返回null，所以如果返回null，直接利用handler发送给主线程消息通知
 					if ((arr = AnalysisJson.getInstance().getTeleSetArr(json)) == null) {
-						
+
 						handler.sendEmptyMessage(StaticCode.MISTAKE_JSON);
 						return;
 					}
 					b.putSerializable("ArrayList", arr);
 					m.setData(b);
-					Log.e("json", arr.get(0));
 					handler.sendMessage(m);
-					
+
 				}
 			}
 		}).start();
@@ -154,6 +153,8 @@ public class NetForJsonUtils {
 				String s = null;
 				// 如果网络连接没有错误的话，就解析
 				if ((s = getConnect(StaticCode.URL_HOTWORDS, handler, -1)) != null) {
+					// 发送获得成功的消息给handler
+					handler.sendEmptyMessage(StaticCode.TIP_GETCOMPLETE);
 					// 解析json数据并返回arraylist
 					ArrayList<String> arr = AnalysisJson.getInstance()
 							.getHotWordsArr(handler, s);
@@ -169,24 +170,55 @@ public class NetForJsonUtils {
 			}
 		}).start();
 	}
-	
+
 	/**
 	 * 根据关键词搜索节目
 	 */
-	public void searchShows(final String keyword,final Handler handler){
+	public void searchShows(final String keyword, final Handler handler) {
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				String url = keyword.replaceAll(" ", "%20");
+				String json = getConnect(StaticCode.URL_SHOWS + url, handler,-1);
+				if (json != null) {
+					ArrayList<ShowBean> arr = AnalysisJson.getInstance().AnaShows(json, handler);
+					Message m = new Message();
+					Bundle b = new Bundle();
+					b.putSerializable("ArrayList", arr);
+					m.setData(b);
+					m.what = StaticCode.TIP_SEARCHSHOWS;
+					handler.sendMessage(m);
+				}
+			}
+		}).start();
+	}
+	
+	/**
+	 * 根据关键词搜索视频
+	 * @param keyword 关键词
+	 * @param handler
+	 */
+	public void searchVideos(final String keyword,final Handler handler,final int page){
 		new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
 				String url = keyword.replaceAll(" ", "%20");
-				String json = getConnect(StaticCode.URL_SHOWS+url, handler, -1);
-				if(json!=null){
-					ArrayList<ShowBean> arr = AnalysisJson.getInstance().AnaShows(json, handler);
-						Message m = new Message();
-						Bundle b = new Bundle();
-						b.putSerializable("ArrayList", arr);
-						m.setData(b);
-						handler.sendMessage(m);
+				String json = getConnect(StaticCode.URL_VIDEOS + url, handler,page);
+				if (json != null) {
+					ArrayList<VideoBean> arr = AnalysisJson.getInstance().anaVideos(json);
+					Message m = new Message();
+					//如果是分页加载，传送arg1
+					if(page>1)
+						m.arg1 = StaticCode.PAGE_LOAD;
+					else
+						m.arg1 = StaticCode.FIRST_LOAD;
+					Bundle b = new Bundle();
+					b.putSerializable("ArrayList", arr);
+					m.setData(b);
+					m.what = StaticCode.TIP_SEARCHVIDEOS;
+					handler.sendMessage(m);
 				}
 			}
 		}).start();
@@ -220,7 +252,6 @@ public class NetForJsonUtils {
 					sb.append(line);
 				}
 				json = sb.toString();
-				handler.sendEmptyMessage(StaticCode.TIP_GETCOMPLETE);
 			}
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();

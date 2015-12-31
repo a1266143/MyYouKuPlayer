@@ -34,8 +34,8 @@ public class SqlUtils {
 	private static final String SQL_HOTWORDS_QUERY = "select * from hot_words";
 	//插入history表
 	private static final String SQL_HISTORY_INSERT = "insert into history_search values(?)";
-	//查询history表
-	private static final String SQL_HISTORY_QUERY = "select * from history_search";
+	//降序查询history表
+	private static final String SQL_HISTORY_QUERY = "select * from history_search order by id asc";
 	/**
 	 * 存储热门关键词到数据库
 	 * @return
