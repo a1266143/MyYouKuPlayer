@@ -138,6 +138,7 @@ public class MovieFragment extends Fragment {
 			
 			Intent intent = new Intent(getActivity(),PlayActivity.class);
 			intent.putExtra("id", list.get(position).getId());
+			intent.putExtra("TYPE", StaticCode.TYPE_SHOW);
 			startActivity(intent);
 		}
 		

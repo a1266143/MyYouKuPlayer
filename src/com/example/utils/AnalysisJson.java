@@ -180,4 +180,26 @@ public class AnalysisJson {
 			return new ArrayList<VideoBean>();
 		}
 	}
+	
+	/**
+	 * 解析关键词联想 
+	 * @param json传递进来的json数据
+	 * @return
+	 */
+	public ArrayList<String> anaKeyWordConnect(String json){
+		ArrayList<String> arr = new ArrayList<String>();
+		try {
+			JSONObject jo = new JSONObject(json);
+			JSONArray r = jo.getJSONArray("r");
+			for(int i=0;i<r.length();i++){
+				JSONObject c = r.getJSONObject(i);
+				String cc = c.getString("c");
+				arr.add(cc);
+			}
+			return arr;
+		} catch (JSONException e) {
+			//返回一个size为0的ArrayList
+			return new ArrayList<String>();
+		}
+	}
 }

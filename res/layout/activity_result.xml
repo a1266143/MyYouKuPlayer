@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -7,6 +7,7 @@
     tools:context=".ResultActivity" >
     
     <RelativeLayout
+        android:id="@+id/result_re"
         android:layout_width="match_parent"
         android:layout_height="49dp"
         android:background="#eee"
@@ -34,6 +35,7 @@
 
     <com.handmark.pulltorefresh.library.PullToRefreshScrollView
         android:id="@+id/result_scrollview" 
+        android:layout_below="@id/result_re"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         >
@@ -63,4 +65,12 @@
         </LinearLayout>
         
     </com.handmark.pulltorefresh.library.PullToRefreshScrollView>
-</LinearLayout>
+    
+    <ImageView 
+        android:id="@+id/result_animationImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:background="@anim/loading"
+        />
+</RelativeLayout>

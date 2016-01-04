@@ -10,7 +10,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 	//创建 “热门关键词” 的数据表
 	final String CREATE_TABLE_SQL = "create table hot_words(WORD TEXT NOT NULL)";
 	//创建搜索历史的表
-	final String CREATE_TABLE_SQL2 = "create table history_search(ID INT PRIMARY KEY AUTOINCREMENT NOT NULL,HISTORY TEXT NOT NULL)";
+	final String CREATE_TABLE_SQL2 = "create table history_search(ID INTEGER(4) PRIMARY KEY,HISTORY TEXT NOT NULL)";
 	
 	public MyDatabaseHelper(Context context, String name, int version) {
 		super(context, name,null, version);

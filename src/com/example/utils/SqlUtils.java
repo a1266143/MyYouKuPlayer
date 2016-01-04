@@ -33,9 +33,11 @@ public class SqlUtils {
 	//查询hot_words表
 	private static final String SQL_HOTWORDS_QUERY = "select * from hot_words";
 	//插入history表
-	private static final String SQL_HISTORY_INSERT = "insert into history_search values(?)";
+	private static final String SQL_HISTORY_INSERT = "insert into history_search values(null,?)";
 	//降序查询history表
-	private static final String SQL_HISTORY_QUERY = "select * from history_search order by id asc";
+	private static final String SQL_HISTORY_QUERY = "select history from history_search order by id desc";
+	//删除history表中的所有数据
+	private static final String SQL_HISTORY_DELETE = "delete from history_search";
 	/**
 	 * 存储热门关键词到数据库
 	 * @return
@@ -107,7 +109,7 @@ public class SqlUtils {
 			dbhelper = new MyDatabaseHelper(context, "MyYouKuPlayerDB.db3", 1);
 			//以写的方式打开数据库
 			db = dbhelper.getWritableDatabase();
-			//执行带占位符的sql语句
+			//执行带占位符的sql插入语句
 			db.execSQL(SQL_HISTORY_INSERT,new String[]{input});
 			//关闭数据库
 			closeDB();
@@ -144,6 +146,24 @@ public class SqlUtils {
 			handler.sendEmptyMessage(StaticCode.MISTAKE_SQL);
 			return null;
 		}
+	}
+	
+	/**
+	 * 删除历史表中的数据
+	 * @param context
+	 * @param handler
+	 */
+	public void deleteHistory(Context context,Handler handler){
+		try {
+			dbhelper = new MyDatabaseHelper(context, "MyYouKuPlayerDB.db3", 1);
+			db = dbhelper.getWritableDatabase();
+			db.execSQL(SQL_HISTORY_DELETE);
+			closeDB();
+		} catch (Exception e) {
+			handler.sendEmptyMessage(StaticCode.MISTAKE_SQL);
+			return;
+		}
+		
 	}
 	
 	/**

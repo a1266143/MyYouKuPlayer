@@ -49,6 +49,46 @@
             android:singleLine="true"
             android:textSize="14sp" />
     </LinearLayout>
+    
+    <!-- 关键词联想 -->
+    <LinearLayout
+        android:id="@+id/keyword_connect_linear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="5dp"
+        android:visibility="gone"
+        >
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/search_edittext" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="45dp"
+                android:gravity="center_vertical"
+                android:paddingLeft="5dp"
+                android:text="关键词联想"
+                android:textSize="22sp" />
+            
+            <Button 
+                android:id="@+id/keyword_connect_close"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/close"/>
+        </RelativeLayout>
+
+        <ListView
+            android:id="@+id/keyword_connect_listView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/search_edittext"
+            android:dividerHeight="1px" />
+    </LinearLayout>
 
     <!-- 历史纪录 -->
 

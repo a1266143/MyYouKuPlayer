@@ -26,6 +26,8 @@ public class StaticCode {
 	public static final int TIP_SEARCHSHOWS = 0x132;
 	// 查找videos
 	public static final int TIP_SEARCHVIDEOS = 0x133;
+	//关键词联想
+	public static final int TIP_KEYWORDCONNECT = 0x136;
 	//TYPE
 	public static final int TYPE_SHOW = 0x134;
 	public static final int TYPE_VIDEO = 0x135;
@@ -47,5 +49,7 @@ public class StaticCode {
 	public static final String URL_SHOWS = "https://openapi.youku.com/v2/searches/show/by_keyword.json?client_id=02b97cb39f025d2c&keyword=";
 	// 通过关键词搜索视频url
 	public static final String URL_VIDEOS = "https://openapi.youku.com/v2/searches/video/by_keyword.json?client_id=02b97cb39f025d2c&keyword=";
+	//关键词联想url
+	public static final String URL_KEYWORD_CONNECT = "https://openapi.youku.com/v2/searches/keyword/complete.json?client_id=02b97cb39f025d2c&keyword=";
 
 }

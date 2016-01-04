@@ -223,6 +223,37 @@ public class NetForJsonUtils {
 			}
 		}).start();
 	}
+	
+	/**
+	 * 关键词联想
+	 * @param keyword 关键词
+	 * @param handler
+	 */
+	public void keywordConnect(final String keyword,final Handler handler){
+		
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				ArrayList<String> arr;
+				String json = null;
+				//将空格转义
+				String keyword2 = keyword.replaceAll(" ", "%20");
+				//如果正常获取json字符串
+				if((json = getConnect(StaticCode.URL_KEYWORD_CONNECT+keyword2, handler,-1))!=null){
+					//解析json
+					arr = AnalysisJson.getInstance().anaKeyWordConnect(json);
+					Message m = new Message();
+					m.what = StaticCode.TIP_KEYWORDCONNECT;
+					Bundle b = new Bundle();
+					b.putSerializable("ArrayList", arr);
+					m.setData(b);
+					handler.sendMessage(m);
+				}
+			}
+		}).start();
+		
+	}
 
 	/**
 	 * 连接网络操作

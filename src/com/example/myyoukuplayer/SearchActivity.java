@@ -2,12 +2,14 @@ package com.example.myyoukuplayer;
 
 import java.util.ArrayList;
 
+import com.example.utils.NetForJsonUtils;
 import com.example.utils.SqlUtils;
 import com.example.utils.StaticCode;
 
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.text.Editable;
@@ -35,31 +37,50 @@ import android.widget.TextView.OnEditorActionListener;
 public class SearchActivity extends Activity {
 
 	private ImageButton search_back;
-	private Button close_btn;
+	private Button close_btn,keyword_connect_close;
 	private EditText search_edittext;
-	private LinearLayout lin_history, lin_hotwords;
+	private LinearLayout lin_history, lin_hotwords,lin_keyword;
 	private boolean focused;
 	private GridView gridView;
-	private ListView listView;
+	private ListView listView,keyword_connect_listview;
+	@SuppressWarnings("rawtypes")
 	private ArrayAdapter ad;
 
-	// 历史纪录集合
-	private ArrayList<String> arr_history;
+	// 历史纪录集合,并且指定容量为4
+	private ArrayList<String> arr_history = new ArrayList<String>(4);
 	// 热词记录集合
 	private ArrayList<String> arr_hotwords;
+	//关键词联想集合
+	private ArrayList<String> arr_keywords;
 
+	@SuppressLint("HandlerLeak")
 	Handler handler = new Handler() {
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public void handleMessage(Message msg) {
 			if (msg.what == StaticCode.MISTAKE_SQL) {
 				Toast.makeText(SearchActivity.this, "数据库操作错误，请联系程序猿",
 						Toast.LENGTH_SHORT).show();
 			}
+			//如果是关键词联想
+			if(msg.what == StaticCode.TIP_KEYWORDCONNECT){
+				arr_keywords = (ArrayList<String>) msg.getData().getSerializable("ArrayList");
+				if(arr_keywords.size() != 0){
+					@SuppressWarnings("rawtypes")
+					ArrayAdapter adapter = new ArrayAdapter(SearchActivity.this, android.R.layout.simple_list_item_1, arr_keywords);
+					keyword_connect_listview.setAdapter(adapter);
+					//为关键词联想设置adapter
+					KeyWordConnectListener listener = new KeyWordConnectListener();
+					keyword_connect_listview.setOnItemClickListener(listener);
+					lin_keyword.setVisibility(View.VISIBLE);
+				}
+			}
 		}
 
 	};
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -69,8 +90,11 @@ public class SearchActivity extends Activity {
 		listView = (ListView) findViewById(R.id.search_history);
 		gridView = (GridView) findViewById(R.id.search_hotwords);
 		close_btn = (Button) findViewById(R.id.search_close_history);
+		keyword_connect_close = (Button) findViewById(R.id.keyword_connect_close);
 		lin_history = (LinearLayout) findViewById(R.id.search_history_linear);
 		lin_hotwords = (LinearLayout) findViewById(R.id.search_hotwords_linear);
+		lin_keyword = (LinearLayout) findViewById(R.id.keyword_connect_linear);
+		keyword_connect_listview = (ListView) findViewById(R.id.keyword_connect_listView);
 		MyOnClickListener mocl = new MyOnClickListener();
 		// edittext的焦点监听器
 		search_edittext
@@ -86,6 +110,14 @@ public class SearchActivity extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				lin_history.setVisibility(View.GONE);
+				SqlUtils.getInstance().deleteHistory(SearchActivity.this, handler);
+			}
+		});
+		keyword_connect_close.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				lin_keyword.setVisibility(View.GONE);
 			}
 		});
 		// 进行数据库查询，将热门关键词查询出来
@@ -108,9 +140,14 @@ public class SearchActivity extends Activity {
 		}
 		// 进行数据库查询，将搜索历史查询出来
 		if ((arr_history = SqlUtils.getInstance().queryHistory(this, handler)) != null) {
-			ad = new ArrayAdapter(this, android.R.layout.simple_list_item_1,
-					arr_history);
-			listView.setAdapter(ad);
+			if(ad==null){
+				ad = new ArrayAdapter(this, android.R.layout.simple_list_item_1,
+						arr_history);
+				listView.setAdapter(ad);
+			}else{
+				ad.notifyDataSetChanged();
+			}
+			
 			listView.setOnItemClickListener(new OnItemClickListener() {
 
 				@Override
@@ -124,10 +161,19 @@ public class SearchActivity extends Activity {
 			});
 		}
 	}
+	
+	class KeyWordConnectListener implements OnItemClickListener{
 
-	public void go2Activity() {
-		// 获取edittext中的文本
-		String s = search_edittext.getText().toString();
+		@Override
+		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+				long arg3) {
+			go2Activity(arr_keywords.get(arg2));
+		}
+		
+	}
+
+	//将历史纪录存入数据库，并且进入resultactivity内容查询结果页面
+	public void go2Activity(String s) {
 		// 如果输入了内容，则存入数据库
 		if (!s.equals("")) {
 			SqlUtils.getInstance().saveHistory2db(SearchActivity.this, s,
@@ -145,6 +191,12 @@ public class SearchActivity extends Activity {
 		public void afterTextChanged(Editable arg0) {
 			// 获得每次输入一个字，然后整个字符串的String
 			String text = arg0.toString();
+			if(text.equals("")){
+				lin_keyword.setVisibility(View.GONE);
+			}
+			if(!text.equals(""))
+				//关键词联想
+				NetForJsonUtils.getInstance().keywordConnect(text, handler);
 		}
 
 		@Override
@@ -167,7 +219,7 @@ public class SearchActivity extends Activity {
 		public boolean onEditorAction(TextView arg0, int arg1, KeyEvent arg2) {
 			// 点击了软键盘上的搜索按钮
 			if (arg1 == EditorInfo.IME_ACTION_SEARCH) {
-				go2Activity();
+				go2Activity(search_edittext.getText().toString());
 			}
 			return false;
 		}

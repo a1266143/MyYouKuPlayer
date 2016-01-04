@@ -9,6 +9,8 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
 import com.handmark.pulltorefresh.library.PullToRefreshGridView;
+import com.youku.player.ApiManager;
+import com.youku.player.VideoQuality;
 import com.youku.player.base.YoukuBasePlayerManager;
 import com.youku.player.base.YoukuPlayer;
 import com.youku.player.base.YoukuPlayerView;
@@ -17,13 +19,17 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.Configuration;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -95,7 +101,6 @@ public class PlayActivity extends Activity {
 			// 关闭刷新
 			gridView.onRefreshComplete();
 		}
-
 	};
 
 	@Override
@@ -153,11 +158,32 @@ public class PlayActivity extends Activity {
 				player.playVideo(idList.get(arg2));
 			}
 		});
-		// 执行网络操作，获取具体剧集数据
-		if(getIntent().getIntExtra("TYPE", 0)==StaticCode.TYPE_SHOW)
+		// 如果是节目，就需要获取剧集信息
+		if(getIntent().getIntExtra("TYPE", 0)==StaticCode.TYPE_SHOW){
 			NetForJsonUtils.getInstance().getTeleSet(id, handler, page);
-		else
+		}
+		//否则如果是视频
+		else{
+			gridView.setVisibility(View.GONE);
 			player.playVideo(getIntent().getStringExtra("id"));
+		}
+		//高清监听器
+		findViewById(R.id.btn).setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				ApiManager.getInstance().changeVideoQuality(VideoQuality.HIGHT, manager);
+			}
+		});
+		
+		//超清监听器
+		findViewById(R.id.btn2).setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				ApiManager.getInstance().changeVideoQuality(VideoQuality.SUPER, manager);
+			}
+		});
 	}
 
 	class MyOnRefreshListener implements OnRefreshListener2<GridView> {

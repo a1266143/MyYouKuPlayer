@@ -17,12 +17,14 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase.OnPullEventListener;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.State;
 import com.handmark.pulltorefresh.library.PullToRefreshScrollView;
+import com.youku.player.ApiManager;
 
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.AnimationDrawable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
@@ -33,6 +35,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -51,7 +54,10 @@ public class ResultActivity extends Activity {
 	private ArrayList<VideoBean> videoAddList;
 	private ArrayList<VideoBean> videoList;
 	private int page = 1;
+	private boolean showsFinish,videosFinish;
 	ResultVideosAdapter vadapter;
+	
+	private ImageView result_animationImage;
 	public Handler handler = new Handler() {
 
 		@SuppressWarnings("unchecked")
@@ -61,6 +67,7 @@ public class ResultActivity extends Activity {
 			if (msg.what == StaticCode.MISTAKE_NET) {
 				Toast.makeText(ResultActivity.this, "网络连接错误",
 						Toast.LENGTH_SHORT).show();
+				result_animationImage.setVisibility(View.GONE);
 				if(page!=1)
 					page--;
 				return;
@@ -71,6 +78,7 @@ public class ResultActivity extends Activity {
 					showList = (ArrayList<ShowBean>) msg.getData().getSerializable("ArrayList");
 					// 如果showList的容量为0，也就说明没搜到数据
 					if (showList.size() == 0) {
+						showsFinish = true;
 						// TODO 不将listView显示出来
 						return;
 					} else {
@@ -79,6 +87,9 @@ public class ResultActivity extends Activity {
 								ResultActivity.this, showList);
 						listView.setAdapter(adapter);
 						listView.setVisibility(View.VISIBLE);
+						showsFinish = true;
+						if(videosFinish)
+							result_animationImage.setVisibility(View.GONE);
 					}
 			}
 			//如果查找的是视频
@@ -87,11 +98,15 @@ public class ResultActivity extends Activity {
 				if(msg.arg1 == StaticCode.FIRST_LOAD){
 					videoList = (ArrayList<VideoBean>) msg.getData().getSerializable("ArrayList");
 					if(videoList.size() == 0){
+						videosFinish = true;
 						return;
 					}else{
 						vadapter= new ResultVideosAdapter(ResultActivity.this, videoList);
 						gridView.setAdapter(vadapter);
 						gridView.setVisibility(View.VISIBLE);
+						videosFinish = true;
+						if(showsFinish )
+							result_animationImage.setVisibility(View.GONE);
 					}
 				}
 				//否则如果是分页加载
@@ -100,6 +115,7 @@ public class ResultActivity extends Activity {
 					videoList.addAll(videoAddList);
 					vadapter.notifyDataSetChanged();
 				}
+				result_animationImage.setVisibility(View.GONE);
 				scrollView.onRefreshComplete();
 			}
 			
@@ -115,6 +131,9 @@ public class ResultActivity extends Activity {
 		keyword = getIntent().getStringExtra("keyword");
 		// 初始化
 		init();
+		//播放loading动画
+		AnimationDrawable anim = (AnimationDrawable) result_animationImage.getBackground();
+		anim.start();
 		// 根据关键词获取节目列表
 		NetForJsonUtils.getInstance().searchShows(keyword, handler);
 		//根据关键词获取视频列表
@@ -127,6 +146,7 @@ public class ResultActivity extends Activity {
 		gridView = (MyGridView) findViewById(R.id.result_gridview);
 		result_title = (TextView) findViewById(R.id.result_title);
 		result_back = (ImageButton) findViewById(R.id.result_back);
+		result_animationImage = (ImageView) findViewById(R.id.result_animationImage);
 		result_title.setText(keyword);
 		ResultClickListener listener = new ResultClickListener();
 		result_back.setOnClickListener(listener);
@@ -151,6 +171,7 @@ public class ResultActivity extends Activity {
 		//执行分页加载节目视频
 		@Override
 		public void onPullUpToRefresh(PullToRefreshBase<ScrollView> refreshView) {
+			result_animationImage.setVisibility(View.VISIBLE);
 			page++;
 			NetForJsonUtils.getInstance().searchVideos(keyword, handler, page);
 		}
@@ -165,8 +186,6 @@ public class ResultActivity extends Activity {
 	class ResultItemClickListener implements OnItemClickListener{
 		
 		private int TYPE;
-		
-
 		public ResultItemClickListener(int tYPE) {
 			super();
 			TYPE = tYPE;

@@ -16,5 +16,19 @@
         android:layout_height="match_parent"
         android:numColumns="6"
         />
+    
+    <Button 
+        android:id="@+id/btn"
+        android:layout_below="@id/youkuplayer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="高清"/>
+    
+    <Button 
+        android:id="@+id/btn2"
+        android:layout_below="@id/btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="超清"/>
 
 </RelativeLayout>
